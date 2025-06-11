@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<LinearLayout
+    android:id="@+id/mainScreen"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#F7DA21">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/beeEmoji"
+            android:layout_width="0sp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:text="🐝"
+            android:textSize="36sp"
+            android:padding="0dp"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/appTitle"
+            android:layout_width="0sp"
+            android:layout_weight="6"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:text="@string/appName"
+            android:textSize="40sp"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:fontFamily="@font/alfa_slab_one"/>
+        <Button
+            android:id="@+id/menuButton"
+            android:layout_width="0sp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:text="⚙️"
+            android:textSize="30sp"
+            android:background="#00000000"
+            android:padding="0dp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/NYTLoadButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#000000"
+        android:textSize="22sp"
+        android:textColor="@color/white"
+        android:text="@string/today_s_problem_ny_times" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
+        <!-- Single character input -->
+        <EditText
+            android:id="@+id/singleCharInput"
+            android:layout_width="60sp"
+            android:layout_height="wrap_content"
+            android:textSize="32sp"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:maxLength="1"
+            android:inputType="textCapCharacters"
+            android:imeOptions="actionNext"
+            android:hint="@string/center"
+            android:importantForAutofill="no" />
+
+        <!-- Remaining characters -->
+        <EditText
+            android:id="@+id/manyCharsInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="32sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:inputType="textCapCharacters"
+            android:imeOptions="actionSend"
+            android:hint="@string/other_letters"
+            android:importantForAutofill="no"/>
+
+        <!--Send button -->
+        <Button
+            android:id="@+id/searchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/find_matches"
+            android:textSize="32sp"
+            android:textColor="@color/white"
+            android:backgroundTint="#000000"
+            android:paddingTop="0sp"
+            android:paddingBottom="4sp"/>
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:contentDescription="@string/results_list_description">
+
+        <TableLayout
+            android:id="@+id/resultsTable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="1"
+            android:padding="0sp">
+        </TableLayout>
+    </ScrollView>
+
+</LinearLayout>
+
+<FrameLayout
+android:id="@+id/fragment_container"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:visibility="gone"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
