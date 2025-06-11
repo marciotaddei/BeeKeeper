@@ -8,7 +8,6 @@
         android:key="back_button"
         android:title="◀  Back"/>
 
-
     <SeekBarPreference
         android:key="min_chars"
         android:title="Minimum length"
