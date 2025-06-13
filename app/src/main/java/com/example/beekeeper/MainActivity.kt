@@ -3,30 +3,31 @@ package com.example.beekeeper
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import android.view.Gravity
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import java.io.BufferedReader
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.AbsoluteSizeSpan
-import android.util.Log
-import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
-import androidx.preference.PreferenceManager
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.jsoup.Jsoup
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.AbsoluteSizeSpan
+import android.util.Log
+import android.view.Gravity
+import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.core.graphics.toColorInt
 import androidx.core.content.edit
+import androidx.preference.PreferenceManager
+import java.io.BufferedReader
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         window.navigationBarColor = "#F7DA21".toColorInt()
         window.statusBarColor = "#F7DA21".toColorInt()
 
-        val menuButton = findViewById<Button>(R.id.menuButton)
+        val menuButton = findViewById<ImageButton>(R.id.menuButton)
         val loadButton   = findViewById<Button>(R.id.NYTLoadButton)
         val searchButton = findViewById<Button>(R.id.searchButton)
 
@@ -73,9 +74,9 @@ class MainActivity : AppCompatActivity() {
             if (supportFragmentManager.backStackEntryCount == 0) {
                 fragmentContainer.visibility = View.GONE
                 mainScreen.visibility = View.VISIBLE
+                searchButton.performClick()
             }
         }
-
 
         loadButton.setOnClickListener {
             centerLetterInput.setText("")
@@ -85,21 +86,54 @@ class MainActivity : AppCompatActivity() {
                 this, "Fetching...", Toast.LENGTH_LONG).apply { show() }
             prefs.edit { remove("min_chars") }
 
-            var beeList : List<String>
-            lifecycleScope.launch {
-                beeList = getNytBeeWords()
-                val (center, others) = getLettersFromSolution(beeList)
+            fetchLatestBeePost(
+                onResult = {permalink ->
+                    runOnUiThread {
+                    val theLetters = permalink.trimEnd('/').substringAfterLast('/')
+                        .replace("_","").takeLast(7).uppercase()
+                    centerLetterInput.setText(theLetters.take(1))
+                    otherLettersInput.setText(theLetters.takeLast(6))
+                    showToast?.cancel()
+                    searchButton.performClick()
+                           }},
+                onError = { err ->
+                    runOnUiThread {
+                        Toast.makeText(this, "Fetch failed\nManual input available",
+                            Toast.LENGTH_LONG).show()
+                        Log.d("Fetch error", err.message!!)
+                        centerLetterInput.setText("")
+                        otherLettersInput.setText("")
+                    }
+                }
+            )
 
-                centerLetterInput.setText(center.uppercase())
-                otherLettersInput.setText(others.uppercase())
-
-                searchButton.performClick()
-                showToast?.cancel()
-            }
+//            var beeList : List<String>
+//            lifecycleScope.launch {
+//                beeList = getNytBeeWords()
+//                val (center, others) = getLettersFromSolution(beeList)
+//
+//                centerLetterInput.setText(center.uppercase())
+//                otherLettersInput.setText(others.uppercase())
+//
+//                searchButton.performClick()
+//                showToast?.cancel()
+//            }
         }
 
         searchButton.setOnClickListener {
+            if (centerLetterInput.text.toString()=="" && otherLettersInput.text.toString()=="")
+            {return@setOnClickListener}
+
+            if (prefs.getBoolean("hide_keyb", true)) {
+                val imm = getSystemService(INPUT_METHOD_SERVICE)
+                        as InputMethodManager
+                val tokenView = currentFocus ?: otherLettersInput
+                imm.hideSoftInputFromWindow(tokenView.windowToken, 0)
+                tokenView.clearFocus()
+            }
+
             resultsTable.removeAllViews()
+
             val showToast: Toast? = Toast.makeText(
                 this, "Loading...", Toast.LENGTH_LONG).apply { show() }
 
@@ -127,8 +161,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         otherLettersInput.setOnFocusChangeListener { view, hasFocus ->
-            if (hasFocus) {(view as EditText).selectAll()}
-        }
+            if (hasFocus) {(view as EditText).selectAll()}}
+
         otherLettersInput.setOnEditorActionListener{ _, actionId, _ ->
             if(actionId == EditorInfo.IME_ACTION_SEND){
                 searchButton.performClick()
@@ -137,42 +171,69 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-
     private fun loadDictionary(filename: String): List<String> {
         val inputStream = assets.open(filename)
         val reader = BufferedReader(inputStream.reader())
         return reader.readLines()
     }
 
-    private suspend fun getNytBeeWords(): List<String> = withContext(Dispatchers.IO) {
-        val url = "https://nytbee.com/"
-        try {val doc = Jsoup.connect(url).get()
-            val elements = doc.select("div[id^=word-div-]")
-            elements.mapNotNull {
-                val id = it.id() // example: "word-div-honey"
-                val prefix = "word-div-"
-                if (id.startsWith(prefix)) id.removePrefix(prefix) else null
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
+    fun fetchLatestBeePost(onResult: (String) -> Unit, onError: (Exception) -> Unit)
+    {thread {
+            try {// 1) Build client & request
+                val client = OkHttpClient()
+                val request = Request.Builder()
+                    .url("https://www.reddit.com/user/NYTSpellingBeeBot/submitted.json?limit=1")
+                    .header("User-Agent", "YourAppName/1.0")
+                    .build()
+                // 2) Execute synchronously on background thread
+                client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful)
+                    {throw Exception("HTTP error ${response.code}")}
+                    val body = response.body!!.string()
+                    // 3) Parse JSON
+                    val postData = JSONObject(body)
+                        .getJSONObject("data")
+                        .getJSONArray("children")
+                        .getJSONObject(0)
+                        .getJSONObject("data")
+
+                    Log.d("Fetch", postData.toString())
+                    val permalink = postData.getString("permalink")
+                    onResult(permalink)
+                }
+            } catch (e: Exception) {onError(e)}
         }
     }
 
-    private fun getLettersFromSolution(solution: List<String>): Pair<String, String> {
-        val allLetters = mutableSetOf<Char>()
-        val centerCandidates = "abcdefghijklmnopqrstuvwxyz".toCharArray().toMutableSet()
-        for (word in solution){
-            val wSet = word.toSet()
-            allLetters.addAll(wSet)
-            centerCandidates.retainAll(wSet)
-            if (allLetters.size == 7 && centerCandidates.size ==1){
-                allLetters.remove(centerCandidates.first())
-                break}
-        }
-        return centerCandidates.joinToString("") to allLetters.joinToString("")
-    }
+
+//    private suspend fun getNytBeeWords(): List<String> = withContext(Dispatchers.IO) {
+//        val url = "https://nytbee.com/"
+//        try {val doc = Jsoup.connect(url).get()
+//            val elements = doc.select("div[id^=word-div-]")
+//            elements.mapNotNull {
+//                val id = it.id() // example: "word-div-honey"
+//                val prefix = "word-div-"
+//                if (id.startsWith(prefix)) id.removePrefix(prefix) else null
+//            }
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            emptyList()
+//        }
+//    }
+
+//    private fun getLettersFromSolution(solution: List<String>): Pair<String, String> {
+//        val allLetters = mutableSetOf<Char>()
+//        val centerCandidates = "abcdefghijklmnopqrstuvwxyz".toCharArray().toMutableSet()
+//        for (word in solution){
+//            val wSet = word.toSet()
+//            allLetters.addAll(wSet)
+//            centerCandidates.retainAll(wSet)
+//            if (allLetters.size == 7 && centerCandidates.size ==1){
+//                allLetters.remove(centerCandidates.first())
+//                break}
+//        }
+//        return centerCandidates.joinToString("") to allLetters.joinToString("")
+//    }
 
 
     private fun findMatches(centerLetter: EditText, otherLetters: EditText,

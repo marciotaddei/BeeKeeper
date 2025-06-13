@@ -2,7 +2,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory android:title=""/>
+    <PreferenceCategory
+        android:title=""/>
 
     <Preference
         android:key="back_button"
@@ -10,8 +11,8 @@
 
     <SeekBarPreference
         android:key="min_chars"
-        android:title="Minimum length"
-        android:summary="of valid words"
+        android:title="🔤 Minimum length"
+        android:summary="✒️ of valid words"
         android:defaultValue="4"
         android:max="10"
         app:min="1"
@@ -19,18 +20,29 @@
 
     <ListPreference
         android:key="dict_choice"
-        android:title="Choose dictionary"
+        android:title="📖 Choose dictionary"
         android:entries="@array/dict_labels"
         android:entryValues="@array/dict_filenames"
         android:defaultValue="2of4brif_plus.txt"
         android:summary="%s"/>
 
+    <SwitchPreferenceCompat
+        android:key="hide_keyb"
+        android:title="⌨️ On send, keyboard"
+        android:defaultValue="true"
+        android:summaryOn="🙈 hides itself"
+        android:summaryOff="👁️ remains visible"/>
+
     <Preference
         android:key="reset_button"
-        android:title="🔄 Reset all"/>
+        android:title="🔄 Reset preferences"/>
+
+    <Preference
+        android:key="clear_button"
+        android:title="🧼 Clear inputs"/>
 
     <Preference
         android:key="quit_button"
-        android:title="❌ Close app"/>
+        android:title="🔌 Close app"/>
 
 </PreferenceScreen>

@@ -1,11 +1,13 @@
 <resources>
     <string name="app_name">BeeKeeper</string>
+    <string name="txt_bee_logo">Bee Logo</string>
+    <string name="txt_gear_icon">Gear icon</string>
     <string name="find_matches">➤</string>
     <string name="appName">BeeKeeper</string>
     <string name="center">Center</string>
     <string name="other_letters">Other letters</string>
     <string name="results_list_description">List of matching words with how many unique letters used.</string>
-    <string name="today_s_problem_ny_times">Today\'s Problem (NY Times)</string>
+    <string name="todays_problem_nyt">Today\'s Problem (NYT)</string>
     <string name="bottom_text">
         Minimum length of valid words: %d\n
         Chosen dictionary: %s\n

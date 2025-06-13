@@ -2,13 +2,13 @@
 
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
 <LinearLayout
     android:id="@+id/mainScreen"
+    android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -18,38 +18,40 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/beeEmoji"
+
+        <ImageView
+            android:id="@+id/beeLogoImage"
             android:layout_width="0sp"
             android:layout_weight="1"
             android:layout_height="match_parent"
-            android:text="🐝"
-            android:textSize="36sp"
+            android:src="@drawable/bee_logo"
             android:padding="0dp"
-            android:gravity="center"
-            tools:ignore="HardcodedText" />
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/txt_bee_logo"/>
 
         <TextView
             android:id="@+id/appTitle"
             android:layout_width="0sp"
             android:layout_weight="6"
             android:layout_height="wrap_content"
-            android:ems="10"
+            android:gravity="top|center_horizontal"
+            android:includeFontPadding="false"
             android:text="@string/appName"
             android:textSize="40sp"
-            android:textAlignment="center"
             android:textColor="#000000"
             android:fontFamily="@font/alfa_slab_one"/>
-        <Button
+
+        <ImageButton
             android:id="@+id/menuButton"
+            android:layout_height="match_parent"
             android:layout_width="0sp"
             android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:text="⚙️"
-            android:textSize="30sp"
-            android:background="#00000000"
-            android:padding="0dp"
-            tools:ignore="HardcodedText" />
+            android:padding="8sp"
+            android:contentDescription="@string/txt_gear_icon"
+            android:src="@drawable/gear"
+            android:scaleType="fitCenter"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+
     </LinearLayout>
 
     <Button
@@ -59,7 +61,8 @@
         android:backgroundTint="#000000"
         android:textSize="22sp"
         android:textColor="#FFFFFF"
-        android:text="@string/today_s_problem_ny_times" />
+        android:textStyle="bold"
+        android:text="@string/todays_problem_nyt" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -91,10 +94,11 @@
             android:textSize="32sp"
             android:textColor="#000000"
             android:textStyle="bold"
-            android:inputType="textCapCharacters"
             android:imeOptions="actionSend"
             android:hint="@string/other_letters"
-            android:importantForAutofill="no"/>
+            android:inputType="textCapCharacters|textNoSuggestions"
+            android:importantForAutofill="no"
+            android:privateImeOptions="nm"/>
 
         <!--Send button -->
         <Button
