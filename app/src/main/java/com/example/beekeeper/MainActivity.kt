@@ -20,7 +20,6 @@ import android.view.Gravity
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import androidx.core.graphics.toColorInt
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import java.io.BufferedReader
@@ -37,9 +36,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.decorView.systemUiVisibility =
+            window.decorView.systemUiVisibility or
+                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or
+                     View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+
         setContentView(R.layout.activity_main)
-        window.navigationBarColor = "#F7DA21".toColorInt()
-        window.statusBarColor = "#F7DA21".toColorInt()
 
         val menuButton = findViewById<ImageButton>(R.id.menuButton)
         val loadButton   = findViewById<Button>(R.id.NYTLoadButton)
@@ -52,14 +54,16 @@ class MainActivity : AppCompatActivity() {
         otherLettersInput = findViewById(R.id.manyCharsInput)
         resultsTable = findViewById(R.id.resultsTable)
 
-        val hint = SpannableString("Center\nletter")
+        val hint = SpannableString("Center") //"Center\nletter"
         hint.setSpan(AbsoluteSizeSpan(14, true),
             0, hint.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         centerLetterInput.hint = hint
+        centerLetterInput.gravity = Gravity.CENTER
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         prefs.edit{remove("min_chars")}
         prefs.edit{remove("dict_choice")}
+
 
         menuButton.setOnClickListener {
             mainScreen.visibility = View.GONE
@@ -106,25 +110,13 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             )
-
-//            var beeList : List<String>
-//            lifecycleScope.launch {
-//                beeList = getNytBeeWords()
-//                val (center, others) = getLettersFromSolution(beeList)
-//
-//                centerLetterInput.setText(center.uppercase())
-//                otherLettersInput.setText(others.uppercase())
-//
-//                searchButton.performClick()
-//                showToast?.cancel()
-//            }
         }
 
         searchButton.setOnClickListener {
             if (centerLetterInput.text.toString()=="" && otherLettersInput.text.toString()=="")
             {return@setOnClickListener}
 
-            if (prefs.getBoolean("hide_keyb", true)) {
+            if (prefs.getBoolean("hide_keyboard", true)) {
                 val imm = getSystemService(INPUT_METHOD_SERVICE)
                         as InputMethodManager
                 val tokenView = currentFocus ?: otherLettersInput
@@ -147,9 +139,9 @@ class MainActivity : AppCompatActivity() {
             Log.d("minChars", minChars.toString())
             Log.d("dict Choice", "$dictFileName $dictLabel")
 
-            val (matches, nTotal) = findMatches(centerLetterInput, otherLettersInput,
+            val matches = findMatches(centerLetterInput, otherLettersInput,
                                                 minChars, dictionaryWords)
-            val nMatches = printTable(resultsTable, matches, nTotal)
+            val nMatches = printTable(resultsTable, matches)
             resultsTable.addView(
                 TextView(this).apply{
                     text = context.getString(R.string.bottom_text)
@@ -169,6 +161,7 @@ class MainActivity : AppCompatActivity() {
                 true}
             else{false}
         }
+
     }
 
     private fun loadDictionary(filename: String): List<String> {
@@ -206,50 +199,27 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-//    private suspend fun getNytBeeWords(): List<String> = withContext(Dispatchers.IO) {
-//        val url = "https://nytbee.com/"
-//        try {val doc = Jsoup.connect(url).get()
-//            val elements = doc.select("div[id^=word-div-]")
-//            elements.mapNotNull {
-//                val id = it.id() // example: "word-div-honey"
-//                val prefix = "word-div-"
-//                if (id.startsWith(prefix)) id.removePrefix(prefix) else null
-//            }
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            emptyList()
-//        }
-//    }
-
-//    private fun getLettersFromSolution(solution: List<String>): Pair<String, String> {
-//        val allLetters = mutableSetOf<Char>()
-//        val centerCandidates = "abcdefghijklmnopqrstuvwxyz".toCharArray().toMutableSet()
-//        for (word in solution){
-//            val wSet = word.toSet()
-//            allLetters.addAll(wSet)
-//            centerCandidates.retainAll(wSet)
-//            if (allLetters.size == 7 && centerCandidates.size ==1){
-//                allLetters.remove(centerCandidates.first())
-//                break}
-//        }
-//        return centerCandidates.joinToString("") to allLetters.joinToString("")
-//    }
-
-
     private fun findMatches(centerLetter: EditText, otherLetters: EditText,
                             minChars:Int, wordList: List<String>):
-            Pair<List<Pair<String, Int>>,Int> {
-        val cntLetter = centerLetter.text.toString().lowercase()
-        val input = otherLetters.text.toString().lowercase()
-        val inputSet = (cntLetter+input).toSet()
+            List<Triple<String, Int, Boolean>> {
+
+        val cntLetter = centerLetter.text.toString().lowercase().toSet()
+        val inputSet = otherLetters.text.toString().lowercase().toSet().union(cntLetter)
+
+        fun scoreOf(word:String): Pair<Int, Boolean> {
+            val extraPoints = if(word.lowercase().toSet() == inputSet) 7 else 0
+            if (word.length == minChars) return 1+extraPoints to (extraPoints==7)
+            return word.length + extraPoints to (extraPoints==7)
+        }
 
         var outList = wordList.filter { word ->
-            word.length >= minChars && word.toSet().containsAll(cntLetter.toSet())
+            word.length >= minChars && word.toSet().containsAll(cntLetter)
                     && inputSet.containsAll(word.toSet())}
-        outList = outList.sortedBy{-it.toSet().size}.map{it.uppercase()}
 
-        val outWnChars = outList.map { it to it.toSet().size }
-        return Pair(outWnChars, (cntLetter+input).toSet().size)
+        outList = outList.sortedBy{-scoreOf(it).first}.map{it.uppercase()}
+
+        val outWScore = outList.map {Triple(it, scoreOf(it).first, scoreOf(it).second)}
+        return outWScore //Triple<word, score, ifPangram
     }
 
     fun clearTableLetters() {
@@ -258,13 +228,12 @@ class MainActivity : AppCompatActivity() {
         otherLettersInput.setText("")
     }
 
-    private fun printTable(table: TableLayout, matches: List<Pair<String,Int>>, nLetters: Int): Int {
+    private fun printTable(table: TableLayout, matches: List<Triple<String,Int,Boolean>>): Int {
         val pangramColor = 0xFFFF0000.toInt()
         val beeYellow    = 0xFFF7DA21.toInt()
         for ((i, match) in matches.withIndex()) {
-            val pangramFlag = (match.second == nLetters)
             var textColor = 0xFF000000.toInt()
-            if(pangramFlag){textColor = pangramColor}
+            if(match.third){textColor = pangramColor}
             else{if(i%2==0){textColor = beeYellow}}
             val tableRow = TableRow(this).apply{
                 if (i%2==0) {
@@ -287,7 +256,7 @@ class MainActivity : AppCompatActivity() {
                 ).apply {marginStart = 15}
             }
             val ifPangram = TextView(this).apply{
-                text = if(pangramFlag){"Pangram!"} else{""}
+                text = if(match.third){"Pangram!"} else{""}
                 textSize = 12f
                 maxLines = 1
                 setPadding(0,0,0,0)

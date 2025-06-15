@@ -3,6 +3,7 @@ package com.example.beekeeper
 import android.os.Bundle
 import android.widget.Toast
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import androidx.core.content.edit
 import androidx.fragment.app.FragmentManager
@@ -41,6 +42,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
         findPreference<Preference>("quit_button")?.setOnPreferenceClickListener {
             Toast.makeText(requireActivity(), "See you later", Toast.LENGTH_SHORT).show()
             requireActivity().finishAffinity() // Closes the app (or at least all activities)
+            true
+        }
+
+        findPreference<Preference>("about_scoring")?.setOnPreferenceClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Scoring")
+                .setMessage("Minimum-length words award 1 point; otherwise words award 1 point per letter. Pangrams award an additional 7-point bonus")
+                .setPositiveButton("OK", null)
+                .show()
             true
         }
 

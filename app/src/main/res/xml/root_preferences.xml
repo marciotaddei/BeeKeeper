@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:fitsSystemWindows="true">
 
     <PreferenceCategory
-        android:title=""/>
+        android:title=" "
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <Preference
         android:key="back_button"
         android:title="◀  Back"/>
+
+
+    <Preference
+        android:key="about_scoring"
+        android:title="❓ How scoring works"/>
 
     <SeekBarPreference
         android:key="min_chars"
@@ -27,7 +35,7 @@
         android:summary="%s"/>
 
     <SwitchPreferenceCompat
-        android:key="hide_keyb"
+        android:key="hide_keyboard"
         android:title="⌨️ On send, keyboard"
         android:defaultValue="true"
         android:summaryOn="🙈 hides itself"

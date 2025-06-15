@@ -1,17 +1,11 @@
 <resources>
     <string-array name="dict_labels">
-        <item>🔡 Minimal</item>
         <item>📄 Precise</item>
-        <item>📑 Inclusive</item>
-        <item>📕 Comprehensive</item>
         <item>📚 Mega</item>
     </string-array>
 
     <string-array name="dict_filenames">
-        <item>dictionary_invent_plus.txt</item>
         <item>2of4brif_plus.txt</item>
-        <item>wordlist_plus.txt</item>
-        <item>words_plus.txt</item>
         <item>mega_dict.txt</item>
     </string-array>
 </resources>
