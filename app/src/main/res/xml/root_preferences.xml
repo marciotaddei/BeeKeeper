@@ -14,8 +14,8 @@
 
 
     <Preference
-        android:key="about_scoring"
-        android:title="❓ How scoring works"/>
+        android:key="information"
+        android:title="❓ Information"/>
 
     <SeekBarPreference
         android:key="min_chars"

@@ -24,12 +24,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        findPreference<Preference>("about_scoring")?.setOnPreferenceClickListener {
+        findPreference<Preference>("information")?.setOnPreferenceClickListener {
             val dialog = AlertDialog.Builder(requireContext())
-                .setTitle("Scoring")
-                .setMessage("Minimum-length words award 1 point.\n" +
-                        "Otherwise, words award 1 point per letter.\n" +
-                        "Pangrams award an additional 7-point bonus.")
+                .setTitle("Information")
+                .setMessage("Scoring:\nMinimum-length words award 1 point. " +
+                        "Otherwise, words award 1 point per letter. " +
+                        "Pangrams award an additional 7-point bonus.\n\n" +
+                        "Dictionaries:\n" +
+                        "The Precise dictionary is the closest match to the official answers. "+
+                        "The Mega dictionary almost certainly contains invalid words, " +
+                        "the Gigantic one certainly does. "
+                        )
                 .setPositiveButton("OK", null)
                 .show()
             dialog.window?.setBackgroundDrawable("#F7DA21".toColorInt().toDrawable())

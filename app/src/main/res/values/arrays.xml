@@ -1,11 +1,13 @@
 <resources>
     <string-array name="dict_labels">
         <item>📄 Precise</item>
-        <item>📚 Mega</item>
+        <item>📕 Mega</item>
+        <item>📚 Gigantic</item>
     </string-array>
 
     <string-array name="dict_filenames">
         <item>2of4brif_plus.txt</item>
         <item>mega_dict.txt</item>
+        <item>mega_mega_dict.txt</item>
     </string-array>
 </resources>
