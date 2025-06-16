@@ -6,9 +6,11 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import androidx.core.content.edit
+import androidx.core.graphics.toColorInt
 import androidx.fragment.app.FragmentManager
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.core.graphics.drawable.toDrawable
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -19,6 +21,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
             requireActivity()
                 .onBackPressedDispatcher
                 .onBackPressed()
+            true
+        }
+
+        findPreference<Preference>("about_scoring")?.setOnPreferenceClickListener {
+            val dialog = AlertDialog.Builder(requireContext())
+                .setTitle("Scoring")
+                .setMessage("Minimum-length words award 1 point.\n" +
+                        "Otherwise, words award 1 point per letter.\n" +
+                        "Pangrams award an additional 7-point bonus.")
+                .setPositiveButton("OK", null)
+                .show()
+            dialog.window?.setBackgroundDrawable("#F7DA21".toColorInt().toDrawable())
             true
         }
 
@@ -42,15 +56,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         findPreference<Preference>("quit_button")?.setOnPreferenceClickListener {
             Toast.makeText(requireActivity(), "See you later", Toast.LENGTH_SHORT).show()
             requireActivity().finishAffinity() // Closes the app (or at least all activities)
-            true
-        }
-
-        findPreference<Preference>("about_scoring")?.setOnPreferenceClickListener {
-            AlertDialog.Builder(requireContext())
-                .setTitle("Scoring")
-                .setMessage("Minimum-length words award 1 point; otherwise words award 1 point per letter. Pangrams award an additional 7-point bonus")
-                .setPositiveButton("OK", null)
-                .show()
             true
         }
 

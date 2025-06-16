@@ -1,8 +1,16 @@
 package com.example.beekeeper
 
-import android.graphics.drawable.GradientDrawable
+//import android.os.Build
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.drawable.GradientDrawable
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.AbsoluteSizeSpan
+import android.util.Log
+import android.view.Gravity
+import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -12,16 +20,10 @@ import android.widget.LinearLayout
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.Toast
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.AbsoluteSizeSpan
-import android.util.Log
-import android.view.Gravity
-import android.view.View
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+//import androidx.core.view.WindowInsetsControllerCompat
 import java.io.BufferedReader
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -34,12 +36,27 @@ class MainActivity : AppCompatActivity() {
     private lateinit var otherLettersInput: EditText
     private lateinit var resultsTable: TableLayout
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.decorView.systemUiVisibility =
-            window.decorView.systemUiVisibility or
-                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or
-                     View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {//API30+
+//            WindowInsetsControllerCompat(window, window.decorView)
+//                .isAppearanceLightStatusBars = true
+//            WindowInsetsControllerCompat(window, window.decorView)
+//                .isAppearanceLightNavigationBars = true
+//        }
+//        else{
+//            @Suppress("DEPRECATION")
+//            window.decorView.systemUiVisibility =
+//                window.decorView.systemUiVisibility or
+//                        View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {//API26+
+//                @Suppress("DEPRECATION")
+//                window.decorView.systemUiVisibility =
+//                    window.decorView.systemUiVisibility or
+//                            View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+//            }
+//        }
 
         setContentView(R.layout.activity_main)
 

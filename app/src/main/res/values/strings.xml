@@ -13,5 +13,5 @@
         Chosen dictionary: %s\n
         Total words found: %d
     </string>
-    <string name="center_letter_hint">Center\nletter</string>
+<!--    <string name="center_letter_hint">Center\nletter</string>-->
 </resources>
